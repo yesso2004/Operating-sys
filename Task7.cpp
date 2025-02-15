@@ -4,7 +4,7 @@
 #include <vector>
 using namespace std;
 
-void PrintMatrix(vector<vector<int>> M, int row, int column)
+void PrintMatrix(vector<vector<int>> &M, int row, int column)
 {
     for (int i = 0; i < row; i++)
     {
@@ -12,6 +12,7 @@ void PrintMatrix(vector<vector<int>> M, int row, int column)
         {
             cout << M[i][j] << " ";
         }
+        cout << endl;
     }
 }
 
@@ -24,6 +25,11 @@ bool DeadLockDetection(vector<int> &E, vector<vector<int>> &C, vector<vector<int
     {
         for (int j = 0; j < ResourceTypes; j++)
         {
+            if (C[i][j] > E[j])
+            {
+                cout << "Error: Allocation exceeds total resources." << endl;
+                return false;
+            }
             Resources[j] -= C[i][j];
         }
     }
@@ -33,7 +39,6 @@ bool DeadLockDetection(vector<int> &E, vector<vector<int>> &C, vector<vector<int
     {
         cout << Resources[i] << " ";
     }
-
     cout << endl;
 
     bool Progression = true;
@@ -67,6 +72,12 @@ bool DeadLockDetection(vector<int> &E, vector<vector<int>> &C, vector<vector<int
         }
     }
 
+    cout << "Boolean Array: ";
+    for (int i = 0; i < Done.size(); i++)
+    {
+        cout << Done[i] << " ";
+    }
+    cout << endl;
     vector<int> Deadlocks;
     for (int i = 0; i < Processes; i++)
     {
@@ -81,7 +92,7 @@ bool DeadLockDetection(vector<int> &E, vector<vector<int>> &C, vector<vector<int
         cout << "Deadlocks Detected: ";
         for (int i = 0; i < Deadlocks.size(); i++)
         {
-            cout << "P" << i << " ";
+            cout << "P" << Deadlocks[i] << " ";
         }
         cout << endl;
         return true;
@@ -90,59 +101,73 @@ bool DeadLockDetection(vector<int> &E, vector<vector<int>> &C, vector<vector<int
     return false;
 }
 
-void ProcessFile(string FileName)
+void ProcessFile(const string &FileName)
 {
     ifstream File(FileName);
 
     if (!File)
     {
-        cout << "Failed to open file " << endl;
+        cout << "Failed to open file." << endl;
         return;
     }
 
     int Processes, ResourceTypes;
     File >> Processes >> ResourceTypes;
-    cout << "Number of Proccesses: " << Processes << endl;
-    cout << "Number of Resource types: " << ResourceTypes << endl;
+
+    if (File.fail())
+    {
+        cout << "Error reading processes and resource types." << endl;
+        return;
+    }
+
+    cout << "Number of Processes: " << Processes << endl;
+    cout << "Number of Resource Types: " << ResourceTypes << endl;
 
     vector<int> E(ResourceTypes);
-
     cout << "Resources of Vector E: ";
     for (int i = 0; i < ResourceTypes; i++)
     {
         File >> E[i];
+        if (File.fail())
+        {
+            cout << "Error reading E vector." << endl;
+            return;
+        }
         cout << E[i] << " ";
     }
-
     cout << endl;
 
     vector<vector<int>> C(Processes, vector<int>(ResourceTypes));
-
-    cout << "Allocation Matrix C: ";
+    cout << "Allocation Matrix C: " << endl;
     for (int i = 0; i < Processes; i++)
     {
         for (int j = 0; j < ResourceTypes; j++)
         {
             File >> C[i][j];
+            if (File.fail())
+            {
+                cout << "Error reading allocation matrix." << endl;
+                return;
+            }
         }
     }
-
     PrintMatrix(C, Processes, ResourceTypes);
 
-    cout << endl;
     vector<vector<int>> Requests(Processes, vector<int>(ResourceTypes));
-
-    cout << "Request Matrix: ";
+    cout << "Request Matrix: " << endl;
     for (int i = 0; i < Processes; i++)
     {
         for (int j = 0; j < ResourceTypes; j++)
         {
             File >> Requests[i][j];
+            if (File.fail())
+            {
+                cout << "Error reading request matrix." << endl;
+                return;
+            }
         }
     }
-
     PrintMatrix(Requests, Processes, ResourceTypes);
-    cout << endl;
 
     File.close();
 
