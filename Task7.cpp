@@ -46,7 +46,7 @@ bool DeadLockDetection(vector<int> &E, vector<vector<int>> &C, vector<vector<int
             if (!Done[i])
             {
                 bool Runnable = true;
-                for (int j = 0; j < Processes; j++)
+                for (int j = 0; j < ResourceTypes; j++)
                 {
                     if (R[i][j] > Resources[j])
                     {
